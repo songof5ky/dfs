@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 
 /**
  *
- * @author Ulia and Viktor
+ * @author iliaaa and Viktor
  */
 public class Graph {
     public Graph()
