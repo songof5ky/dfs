@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 
 /**
  *
- * @author Viktor
+ * @author Ulia and Viktor
  */
 public class Graph {
     public Graph()
@@ -121,7 +121,160 @@ public class Graph {
             System.out.println("->X");
         }
     }
+    public int topological_sort()
+    {
+        if (error)
+        {
+            error("Cycle!");
+            message.add("Алгоритм топологической сортировки не может быть выполнен, так как в графе был обнаружен цикл.");
+            return -1;
+        }
+        if (end_sort)
+        {
+            System.out.println("!end_sort");
+            return 1;
+        }
+        if (!end_dfs)
+        {
+            System.out.println("!end_dfs");
+            return step_dfs();
+        }
+        message.add("По очереди достаем все вершины из стека и присваиваем им номера в порядке вытаскивания из стека.");
+        replacement_rule();
+        System.out.println("exit of dfs");
+        for (int i=0; i<edges.size(); i++)
+        {
+            for (int j=0; j<edges.get(i).size(); j++)
+            {
+                edges.get(i).set(j, numbers[edges.get(i).get(j)]);
+            }
+        }
+        ArrayList<Integer> temp;
+        int itemp;
+        do
+        {
+            for (int i=0; i<edges.size(); i++)
+            {
+                if (numbers[i]!=i)
+                {
+                    temp=edges.get(i);
+                    edges.set(i, edges.get(numbers[i]));
+                    edges.set(numbers[i], temp);
+                    itemp=numbers[numbers[i]];
+                    numbers[numbers[i]]=numbers[i];
+                    numbers[i]=itemp;
+                }
+            }
+        }
+        while (!correct_rule());    //Какими-то чудесами работает правильно:)
+        for (int i=0; i<edges.size(); i++)
+        {
+            colors[i]=0;
+        }
+        end_sort=true;
+        message.add("Алгоритм топологической сортировки завершен. Граф Отсортирован.");
+        return 3;
+    }
+    private boolean correct_rule()
+    {
+        for (int i=0; i<edges.size(); i++)
+        {
+            if (numbers[i]!=i)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    public boolean getError()
+    {
+        return error;
+    }
+    private void outPrint(String str)
+    {
+        System.out.println(str);
+    }
 
-   
+    private void error(String er_mes){
+        JFrame errFrame = new JFrame();
+        errFrame.setTitle("Error!");
+        errFrame.setPreferredSize(new Dimension(200,100));
+        JLabel mess = new JLabel();
+        mess.setText(er_mes);
+        errFrame.add(mess);
+        errFrame.pack();
+        errFrame.setVisible(true);
+    }
 
-
+    public boolean setEdges (ArrayList<String> edges_load)
+    {
+        if (edges_load==null)
+        {
+            //System.out.print("Error load graph!");
+            error("Error!!! Broken graph!");
+            return false;
+        }
+        for (int i=0; i<edges_load.size(); i++)
+        {
+            StringTokenizer str=new StringTokenizer(edges_load.get(i), " ", false);
+            ArrayList<Integer> temp=new ArrayList<Integer>();
+            while(str.hasMoreTokens())
+            {
+                int t=Integer.parseInt(str.nextToken());
+                if (t>edges_load.size())
+                {
+                    //System.out.print("Error!!! Broken graph!");
+                    error("Error!!! Broken graph!");
+                    return false;
+                }
+                temp.add(t-1);
+            }
+            edges.add(temp);
+        }
+        colors=new int[edges.size()];
+        numbers=new int[edges.size()];
+        return true;
+    }
+    public ArrayList<ArrayList<Integer>> getGraph()
+    {
+        return edges;
+    }
+    public ArrayList<String> getEdges ()
+    {
+        ArrayList<String> str=new ArrayList<String>();
+        for (int i=0; i<edges.size(); i++)
+        {
+            String temp=new String();
+            for (int j=0; j<edges.get(i).size(); j++)
+            {
+                temp+=String.valueOf(edges.get(i).get(j)+1);
+                temp+=" ";
+            }
+            str.add(temp);
+        }
+        return str;
+    }
+    public int[] getColors()
+    {
+        return colors;
+    }
+    public Stack<Integer> getStack()
+    {
+        return stack;
+    }
+    public ArrayList<String> getMessage()
+    {
+        return message;
+    }
+    public void clearMessage()
+    {
+        message.clear();
+    }
+    private boolean end_sort, end_dfs, error;
+    private Stack<Integer> step_index_dfs;
+    private ArrayList<ArrayList<Integer>> edges;
+    private int[] numbers;
+    private int[] colors;
+    private Stack<Integer> stack;
+    private ArrayList<String> message;
+}
